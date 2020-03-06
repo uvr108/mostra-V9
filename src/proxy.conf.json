@@ -1,0 +1,6 @@
+{
+    "/api2db": {
+        "target": "http://shogouki.lan.csn.uchile.cl:8080/events",
+        "secure": false
+    }
+}
