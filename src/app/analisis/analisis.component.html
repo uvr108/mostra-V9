@@ -1,0 +1,87 @@
+<div style="padding-left: 15px;  padding-right: 15px"> 
+<img src="http://www.sismologia.cl/img/ssuch.png" style="background-color:black;" width="100%" height="120px">
+<hr>   
+
+     <form [formGroup]="periodForm" (ngSubmit)="onSubmit()" validate> 
+    
+      <label>
+      <p class="text-primary">&nbsp;&nbsp;fecha inicial: 
+      <input type="date" formControlName="fecha_ini" required>&nbsp;
+      </p>
+      </label>
+
+      <label>
+      <p class="text-primary">&nbsp;fecha final:
+      <input type="date" formControlName="fecha_fin" required>&nbsp;
+      </p>
+      </label>
+
+      <label>
+          <p class="text-primary">&nbsp;version 0 :
+          <input  type="checkbox" formControlName="pversion">&nbsp;
+          </p>
+      </label>
+      
+      <label>
+      <p class="text-primay">&nbsp;Evaluation Status :&nbsp;</p>
+      </label>
+
+      <label>
+        <select class="form-control" formControlName="evaluation_status">
+          <option value='_ambos'>Todos</option>
+          <option value='_preliminar'>Preliminar</option>
+          <option value='_final'>Final</option>
+        </select>
+      </label>
+      <label>
+        <p class="text-primay">&nbsp;Sensible :&nbsp;</p>
+        </label>
+      <label>
+        <select class="form-control" formControlName="sensible">
+          <option value='_ambos'>Todos</option>
+          <option value='_sensible'>Si</option>
+          <option value='_nosensible'>No</option>
+        </select>
+      </label>
+         
+      <label>
+        &nbsp;
+      <button type="submit"  class="btn btn-primary btn-sm" [disabled]="!periodForm.valid">Consultar</button>
+      </label>&nbsp;
+      <label><button type="button" class="btn btn-primary btn-sm"  (click)="pull()" [disabled]="!periodForm.valid">Bajar datos</button></label>
+    </form>
+
+</div>
+
+<div *ngIf="tipo=='tabla'" style = "padding-left: 15px; padding-right: 15px">
+      <table class="table table-bordered table-sm" width="100%">
+        <thead>
+          <tr *ngFor="let t of tabla"><td>{{ t | json }}</td></tr>
+        </thead>
+    </table>
+</div>
+
+<div *ngIf="tipo=='tabla'" class="row"  style = "padding-left: 15px; padding-right: 15px">
+    <div class="col-12">
+        <p *ngIf="tabla === undefined; else Mostra">&nbsp;Debe seleccionar Periodo</p>     
+    </div>
+  
+    <ng-template #Mostra>
+        <div *ngIf="tabla.length == 0; else Mostra2"><p>&nbsp;No existen resultados. Revise periodos</p></div>
+    </ng-template>
+  
+    <ng-template #Mostra2>     
+       <pagination-controls (pageChange)="p=$event"></pagination-controls>
+    </ng-template>
+    
+  </div>  
+  
+  <div *ngIf="tipo=='file'" class="row">
+  <div class="col-12">
+  
+      <h3>&nbsp;Análisis</h3> 
+        <p>&nbsp;Archivo a Bajar : <a href="ftp://{{my_server_ip}}/pub/{{filedir}}.csv" download target='_new'>{{filedir}}.csv</a></p>
+    </div>
+  </div>
+
+
