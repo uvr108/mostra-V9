@@ -56,7 +56,10 @@
 <div *ngIf="tipo=='tabla'" style = "padding-left: 15px; padding-right: 15px">
       <table class="table table-bordered table-sm" width="100%">
         <thead>
-          <tr *ngFor="let t of tabla"><td>{{ t | json }}</td></tr>
+          <tr *ngFor="let t of tabla"><td>{{ t['creation_info']['author'] | json }} || 
+            {{ t['creation_info']['creation_time'] | json}} || 
+            {{ t['id'] | json}} </td>
+          </tr>
         </thead>
     </table>
 </div>
