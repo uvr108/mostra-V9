@@ -78,68 +78,48 @@ export class AnalisisComponent implements OnInit {
    // this.list.getList().subscribe(data => {this.tabla = data}); 
   }
 
+  value = []; 
+
+
   onSubmit() {
   
     this.tipo='tabla'; 
     
+    // 2020-02-01T00:00:00Z
+    // 2020-04-20T15:00:00Z
+
     var period = this.make_period();
-    var between = [period[0] + 'T00:00:00+00:00' , period[1]+'T23:59:59+00:00','fecha_even'];
+    var between = [period[0] + 'T00:00:00Z' , period[1]+'T23:59:59+00:00:00Z','fecha_even'];
     var order = {'event_id':'desc','version':'desc'};
     var where={};
     var or={};
 
+    
     if (this.periodForm.value.pversion) { 
         or['version'] = [0,null];
     }
+    // alert(period[0]);
+    // alert(period[1]);
+    let ini = period[0] + 'T00:00:00Z'; 
+    let fin = period[1] + 'T15:00:00Z';
+    
+    
 
-    console.log(this.periodForm.value);
+    this.list.getList(ini, fin).subscribe(data => {
+               this.tabla = data['data'];
+               this.tabla.forEach(function (value) {
+               
+               this.value.push(value);  
 
-    // console.log(`between : ${JSON.stringify(between)}`);
+              })
+              this.value.forEach(function (val) { console.log(val)}) 
+    });
 
-    /*
-  
-    switch (this.periodForm.value.evaluation_status) {
-      case '_ambos' : {          
-          break;
-      }
-      case '_preliminar' : {
-          where['evaluation_status'] = 'preliminary';
-          break;
-      }
-      case '_final' : {
-          where['evaluation_status'] = 'final';
-          break;     
-      }
-    }
+    
 
-    switch (this.periodForm.value.sensible) {
-      case '_ambos' : {          
-          break;
-      }
-      case '_sensible' : {
-          where['sensible'] = true;
-          break;
-      }
-      case '_nosensible' : {
-          where['sensible'] = null;
-          break;     
-      }
-    }
-    // 
-    const mensaje: Message = {'command': 'listar', 'tipo': 'rethink', 
-    'message': {'table': 'seiscomp', 'option': 'select','betweenISO':between,
-    'where' : where, 'order': order, 'or':or}};
-
-    */
-
-    // console.log(`mensaje : ${JSON.stringify(mensaje)}`); 
-
-    // this.dttService.send(mensaje);
-   
-     this.list.getList().subscribe(data => {this.tabla = data['data']});
-     
-     
   }
+
+
 
 }
 
