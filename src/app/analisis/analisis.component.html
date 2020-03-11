@@ -23,14 +23,15 @@
       </label>
       
       <label>
-      <p class="text-primay">&nbsp;Evaluation Status :&nbsp;</p>
+      <p class="text-primay">&nbsp;Status :&nbsp;</p>
       </label>
 
       <label>
-        <select class="form-control" formControlName="evaluation_status">
-          <option value='_ambos'>Todos</option>
-          <option value='_preliminar'>Preliminar</option>
-          <option value='_final'>Final</option>
+        <select class="form-control" formControlName="status">
+          <option value='_todos'>Todos</option>
+          <option value='_preliminary'>preliminary</option>
+          <option value='_final'>final</option>
+          <option value='_reviewed'>reviewed</option>
         </select>
       </label>
       <label>
@@ -54,37 +55,32 @@
 </div>
 
 <div *ngIf="tipo=='tabla'" style = "padding-left: 15px; padding-right: 15px">
-      <table class="table table-bordered table-sm" width="100%">
-        <thead>
-          <tr *ngFor="let t of tabla"><td>{{ t['creation_info']['author'] | json }} || 
-            {{ t['creation_info']['creation_time'] | json}} || 
-            {{ t['id'] | json}} </td>
+
+  <table class="table table-bordered table-sm" width="100%">
+        <thead  class="thead-dark">
+          <tr><th>id</th><th>author</th><th>creation_time</th><th>mag</th><th>type</th><th>station_count</th>
+            <th>Status</th><th>latitud</th><th>longitud</th><th>depth</th><th>user</th><th>sensible</th><th>retardo</th>
+            <th>version</th></tr>
+          <tr *ngFor="let o of out  |paginate: { itemsPerPage: 15, currentPage: p } ">
+            <td>{{ o['event_id']}}</td>
+            <td>{{ o['magnitude']['creation_info']['author']}}</td>
+            <td>{{ o['magnitude']['creation_info']['creation_time']}}</td>
+            <td>{{ o['magnitude']['mag']}}</td>
+            <td>{{ o['magnitude']['type']}}</td>
+            <td>{{ o['magnitude']['station_count']}}</td>
+            <td>{{ o['magnitude']['evaluation_status']}}</td>
+            <td>{{ o['origin']['latitude']}}</td>
+            <td>{{ o['origin']['longitude']}}</td>
+            <td>{{ o['origin']['depth']['value']}}</td>
+            <td>{{ o['user']}}</td>
+            <td>{{ o['sensible']}}</td>
+            <td>{{ o['mail_creation_time']}}</td>
+            <td>{{ o['version_solution']}}</td>
+
           </tr>
         </thead>
     </table>
+    <pagination-controls (pageChange)="p=$event"></pagination-controls>
 </div>
-
-<div *ngIf="tipo=='tabla'" class="row"  style = "padding-left: 15px; padding-right: 15px">
-    <div class="col-12">
-        <p *ngIf="tabla === undefined; else Mostra">&nbsp;Debe seleccionar Periodo</p>     
-    </div>
-  
-    <ng-template #Mostra>
-        <div *ngIf="tabla.length == 0; else Mostra2"><p>&nbsp;No existen resultados. Revise periodos</p></div>
-    </ng-template>
-  
-    <ng-template #Mostra2>     
-       <pagination-controls (pageChange)="p=$event"></pagination-controls>
-    </ng-template>
-    
-  </div>  
-  
-  <div *ngIf="tipo=='file'" class="row">
-  <div class="col-12">
-  
-      <h3>&nbsp;Análisis</h3> 
-        <p>&nbsp;Archivo a Bajar : <a href="ftp://{{my_server_ip}}/pub/{{filedir}}.csv" download target='_new'>{{filedir}}.csv</a></p>
-    </div>
-  </div>
 
 
