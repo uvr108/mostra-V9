@@ -6,6 +6,8 @@ import { ListService } from '../shared/list.service';
 import { Message } from '../message';
 import { Validators, FormBuilder } from '@angular/forms';
 import { environment } from './../../environments/environment';
+import { mergeMap, map, delay } from 'rxjs/operators';
+import { of, Observable } from 'rxjs'; 
 
 @Component({
   selector: 'app-analisis',
@@ -34,7 +36,7 @@ export class AnalisisComponent implements OnInit {
     fecha_fin : ['',  [Validators.required]],
 
     pversion : [false],
-    evaluation_status : ['_ambos'],
+    status : ['_todos'],
     sensible: ['_ambos']
   });
 
@@ -77,49 +79,72 @@ export class AnalisisComponent implements OnInit {
   ngOnInit() {
    // this.list.getList().subscribe(data => {this.tabla = data}); 
   }
-
-  value = []; 
-
+  out: Array<string|number|boolean>;
 
   onSubmit() {
   
+    this.out = [];
+
     this.tipo='tabla'; 
     
-    // 2020-02-01T00:00:00Z
-    // 2020-04-20T15:00:00Z
-
     var period = this.make_period();
-    var between = [period[0] + 'T00:00:00Z' , period[1]+'T23:59:59+00:00:00Z','fecha_even'];
-    var order = {'event_id':'desc','version':'desc'};
-    var where={};
-    var or={};
-
     
-    if (this.periodForm.value.pversion) { 
-        or['version'] = [0,null];
-    }
-    // alert(period[0]);
-    // alert(period[1]);
     let ini = period[0] + 'T00:00:00Z'; 
-    let fin = period[1] + 'T15:00:00Z';
+    let fin = period[1] + 'T23:59:59Z';
     
-    
+    console.log(this.periodForm.value);
 
-    this.list.getList(ini, fin).subscribe(data => {
-               this.tabla = data['data'];
-               this.tabla.forEach(function (value) {
-               
-               this.value.push(value);  
+    let pversion = this.periodForm.value['pversion'];
+    let status = this.periodForm.value['status'];
 
-              })
-              this.value.forEach(function (val) { console.log(val)}) 
-    });
+    console.log(pversion, status);
 
-    
+    this.list.getList(ini, fin)
+        .subscribe(
+        data => {
+           let sensible = [];
+           data['data'].forEach((el: { [x: string]: any; }) => {
+                  
+                  el['descriptions'].forEach(e => { 
+                        
+                        // console.log(el['id'], e['type']); 
+                        if (e['type']=='felt report') { sensible.push(el['id'])} 
+                      });
+                   
+                  this.list.GetIssue(el['id']).subscribe( dat => { dat['data'].forEach((d: any) => {
+                  
+                  const d1 = new Date(d['mail_creation_time']);
+                  const d2 = new Date(d['origin']['creation_info']['creation_time']);
+                  const diff = Number((d1.valueOf() - d2.valueOf())/60).toFixed(2); 
+                  
+                  d['mail_creation_time'] = diff;
+                  d['magnitude']['mag'] = Number(d['magnitude']['mag']).toFixed(1); 
 
+                  d['origin']['latitude'] = Number(d['origin']['latitude']).toFixed(4);
+                  d['origin']['longitude'] = Number(d['origin']['longitude']).toFixed(4);
+
+                  d['origin']['depth']['value'] = Number(d['origin']['depth']['value']/1000).toFixed(1)
+
+                  const esIgual = (element: number) => element == d['event_id'];
+                  
+                  d['sensible'] = ((sensible.findIndex(esIgual) === -1) ? false: true);
+
+                  console.log(d['event_id'],d['magnitude']['evaluation_status']);
+                  
+                  if (pversion == true && d['version_solution'] == 0) { 
+                                 this.out.push(d);
+                                 
+                  }
+                  else if (pversion == false) {
+                      this.out.push(d); 
+                  }
+
+                  if (status == '_todos') {  }
+
+                })})
+           });
+           
+         }
+      );
   }
-
-
-
 }
-
