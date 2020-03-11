@@ -33,7 +33,7 @@ export class ListService {
 
   
   GetIssue(value): Observable<[{}]> {
-    console.log('http://10.54.223.18/api2db/' + value + '/email_info');
+    // console.log('http://10.54.223.18/api2db/' + value + '/email_info');
     return this.http.get<any>('http://10.54.223.18/api2db/' + value + '/email_info')
     .pipe(
       retry(1),
