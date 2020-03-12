@@ -6,8 +6,8 @@ import { ListService } from '../shared/list.service';
 import { Message } from '../message';
 import { Validators, FormBuilder } from '@angular/forms';
 import { environment } from './../../environments/environment';
-import { mergeMap, map, delay } from 'rxjs/operators';
-import { of, Observable } from 'rxjs'; 
+
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-analisis',
@@ -37,28 +37,59 @@ export class AnalisisComponent implements OnInit {
 
     pversion : [false],
     status : ['_todos'],
-    sensible: ['_ambos']
+    sensible: ['_todos']
   });
 
   fecha_ini : string;
   fecha_fin : string;
 
-  tipo='tabla';
-  filedir:string;
+  // tipo='tabla';
+  filedir:string = null;
 
   // cabecera : Array<String> = ['event_id','fecha_even','fecha_email','lat','lon','mag','mag_type','author','process_delay','email_delay','evaluation_status',
   // 'n20','n5','sensible','station_count','user','version'];
 
   cabecera : Array<String> = ['author'];
+  fileUrl: any;
 
   pull() {
 
-    this.tipo='file';
+    // this.tipo='file';
     const epochNow = (new Date).getTime();
     this.filedir = String(epochNow);
-    "data"
-    // this.dttService.send(mensaje);
+    console.log(this.filedir);
+    
+    
+    const blob = new Blob([this.formatea()], { type: 'application/octet-stream' });
+
+    this.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
   
+  }
+
+  formatea() : string  {
+    const cabeza = "event_id|author|creation|mag|type|st_count|status|latitude|longitude|dep|user|sensible|retardo|version\n";
+    var salida: string = '';
+    this.out.forEach(o => {
+      const event_id = o['event_id'];
+      const author = o['magnitude']['creation_info']['author'].trim();
+      const creation = o['magnitude']['creation_info']['creation_time'].trim();
+      const mag = o['magnitude']['mag'].trim();
+      const type = o['magnitude']['type'].trim();
+      const st_count = o['magnitude']['station_count'];
+      const status = o['magnitude']['evaluation_status'].trim();
+      const latitude = o['origin']['latitude'].trim();
+      const longitude = o['origin']['longitude'].trim();
+      const dep = o['origin']['depth']['value'].trim();
+      const user = o['user'].trim();
+      const sensible = o['sensible'];
+      const retardo = o['mail_creation_time'].trim();
+      const version = o['version_solution'];
+
+      const out = `${event_id}|${author}|${creation}|${+mag}|${type}|${+st_count}|${status}|${+latitude}|${+longitude}|${+dep}|${user}|${sensible}|${+retardo}|${+version}\n`;
+      salida = salida + out; 
+        
+    });
+    return cabeza + salida;
   }
 
   make_period() {
@@ -69,7 +100,7 @@ export class AnalisisComponent implements OnInit {
     return [this.fecha_ini , this.fecha_fin]
   }
 
-  constructor(private fb: FormBuilder, private list: ListService ) { 
+  constructor(private fb: FormBuilder, private list: ListService ,private sanitizer: DomSanitizer ) { 
   }
 
   ngAfterViewInit() {
@@ -79,29 +110,40 @@ export class AnalisisComponent implements OnInit {
   ngOnInit() {
    // this.list.getList().subscribe(data => {this.tabla = data}); 
   }
-  out: Array<string|number|boolean>;
+
+  out: Array<string|number|boolean>
+  sta : Array<number>;
 
   onSubmit() {
   
+   
+
     this.out = [];
 
-    this.tipo='tabla'; 
+    // this.tipo='tabla'; 
     
     var period = this.make_period();
     
     let ini = period[0] + 'T00:00:00Z'; 
     let fin = period[1] + 'T23:59:59Z';
     
-    console.log(this.periodForm.value);
+    // console.log(this.periodForm.value);
+
+    /*
+      tabla de valores
+    */
 
     let pversion = this.periodForm.value['pversion'];
     let status = this.periodForm.value['status'];
+    let sensible_ = this.periodForm.value['sensible'];
 
-    console.log(pversion, status);
+    // console.log(pversion, status, sensible_);
 
     this.list.getList(ini, fin)
         .subscribe(
         data => {
+
+           
            let sensible = [];
            data['data'].forEach((el: { [x: string]: any; }) => {
                   
@@ -129,18 +171,40 @@ export class AnalisisComponent implements OnInit {
                   
                   d['sensible'] = ((sensible.findIndex(esIgual) === -1) ? false: true);
 
-                  console.log(d['event_id'],d['magnitude']['evaluation_status']);
+                  // console.log(d['event_id'],d['magnitude']['evaluation_status']);
                   
-                  if (pversion == true && d['version_solution'] == 0) { 
-                                 this.out.push(d);
-                                 
+                  this.sta = [1,1,1];
+
+                  // pversion
+
+                  if (pversion === true && +d['version_solution'] === 0) { 
+
+                      this.sta[0] = 0;
                   }
                   else if (pversion == false) {
-                      this.out.push(d); 
+                      this.sta[0] = 0;
                   }
+                  
+                  // status
 
-                  if (status == '_todos') {  }
+                  // console.log(status, d['magnitude']['evaluation_status']);
+                  
+                  if (status == '_todos') { this.sta[1] = 0  }
+                  if (status === '_preliminary' && d['magnitude']['evaluation_status'] === 'preliminary') { this.sta[1] = 0};
+                  if (status === '_final' && d['magnitude']['evaluation_status'] === 'final') {this.sta[1] = 0};
+                  if (status === '_reviewed' && d['magnitude']['evaluation_status'] === 'reviewed') {this.sta[1] = 0};
+                  
+                  // sensible
+                  
+                  if (sensible_ === '_todos') { this.sta[2] = 0};
+                  if (sensible_ === '_si' && d['sensible'] == true) { this.sta[2] = 0};
+                  if (sensible_ === '_no' && d['sensible'] == false) { this.sta[2] = 0};
 
+                  d['sta'] = this.sta;
+                  if ((+this.sta[0] + +this.sta[1] + +this.sta[2]) === 0) {
+                      this.out.push(d);
+                  }
+                  
                 })})
            });
            
