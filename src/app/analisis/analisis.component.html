@@ -64,7 +64,7 @@
           <tr *ngFor="let o of out  |paginate: { itemsPerPage: 15, currentPage: p } ">
             <td>{{ o['event_id']}}</td>
             <td>{{ o['magnitude']['creation_info']['author']}}</td>
-            <td>{{ o['magnitude']['creation_info']['creation_time']}}</td>
+            <td>{{ o['origin']['creation_info']['creation_time']}}</td>
             <td>{{ o['magnitude']['mag']}}</td>
             <td>{{ o['magnitude']['type']}}</td>
             <td>{{ o['magnitude']['station_count']}}</td>
@@ -87,8 +87,7 @@
       <pagination-controls (pageChange)="p=$event"></pagination-controls>
     </div>
     <div *ngIf="filedir" class="col" style="background-color:lavender;">
-      <a [href]="fileUrl" download="{{filedir}}.csv">{{filedir}}.csv</a>
-      <!--p>&nbsp;Archivo a Bajar : <a href="ftp://{{my_server_ip}}/pub/{{filedir}}.csv" download target='_new'>{{filedir}}.csv</a></p-->
+      <p>&nbsp;Archivo a Bajar : <a [href]="fileUrl" download="{{filedir}}.csv">{{filedir}}.csv</a></p>
     </div>
   </div>
   
