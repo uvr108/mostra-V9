@@ -1,7 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import {NgxPaginationModule} from 'ngx-pagination';
-// import { WebsocketService } from '../services/websocket.service';
-// import { ConectaService } from '../services/conecta.service';
 import { ListService } from '../shared/list.service';
 import { Message } from '../message';
 import { Validators, FormBuilder } from '@angular/forms';
@@ -43,23 +41,17 @@ export class AnalisisComponent implements OnInit {
   fecha_ini : string;
   fecha_fin : string;
 
-  // tipo='tabla';
   filedir:string = null;
-
-  // cabecera : Array<String> = ['event_id','fecha_even','fecha_email','lat','lon','mag','mag_type','author','process_delay','email_delay','evaluation_status',
-  // 'n20','n5','sensible','station_count','user','version'];
 
   cabecera : Array<String> = ['author'];
   fileUrl: any;
 
   pull() {
 
-    // this.tipo='file';
     const epochNow = (new Date).getTime();
     this.filedir = String(epochNow);
     console.log(this.filedir);
-    
-    
+        
     const blob = new Blob([this.formatea()], { type: 'application/octet-stream' });
 
     this.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
@@ -96,7 +88,7 @@ export class AnalisisComponent implements OnInit {
 
     this.fecha_ini = this.periodForm.value['fecha_ini'];
     this.fecha_fin = this.periodForm.value['fecha_fin'];
-    // console.log(`FECHAS : ${JSON.stringify(this.fecha_ini)} ${JSON.stringify(this.fecha_fin)}`); 
+ 
     return [this.fecha_ini , this.fecha_fin]
   }
 
@@ -107,43 +99,29 @@ export class AnalisisComponent implements OnInit {
     
   };
 
-  ngOnInit() {
-   // this.list.getList().subscribe(data => {this.tabla = data}); 
-  }
+  ngOnInit() {}
 
   out: Array<string|number|boolean>
   sta : Array<number>;
 
   onSubmit() {
-  
-   
 
+    this.filedir = null;
     this.out = [];
 
-    // this.tipo='tabla'; 
-    
     var period = this.make_period();
     
     let ini = period[0] + 'T00:00:00Z'; 
     let fin = period[1] + 'T23:59:59Z';
-    
-    // console.log(this.periodForm.value);
-
-    /*
-      tabla de valores
-    */
 
     let pversion = this.periodForm.value['pversion'];
     let status = this.periodForm.value['status'];
     let sensible_ = this.periodForm.value['sensible'];
 
-    // console.log(pversion, status, sensible_);
-
     this.list.getList(ini, fin)
         .subscribe(
         data => {
 
-           
            let sensible = [];
            data['data'].forEach((el: { [x: string]: any; }) => {
                   
@@ -171,11 +149,7 @@ export class AnalisisComponent implements OnInit {
                   
                   d['sensible'] = ((sensible.findIndex(esIgual) === -1) ? false: true);
 
-                  // console.log(d['event_id'],d['magnitude']['evaluation_status']);
-                  
                   this.sta = [1,1,1];
-
-                  // pversion
 
                   if (pversion === true && +d['version_solution'] === 0) { 
 
@@ -184,11 +158,7 @@ export class AnalisisComponent implements OnInit {
                   else if (pversion == false) {
                       this.sta[0] = 0;
                   }
-                  
-                  // status
-
-                  // console.log(status, d['magnitude']['evaluation_status']);
-                  
+                                    
                   if (status == '_todos') { this.sta[1] = 0  }
                   if (status === '_preliminary' && d['magnitude']['evaluation_status'] === 'preliminary') { this.sta[1] = 0};
                   if (status === '_final' && d['magnitude']['evaluation_status'] === 'final') {this.sta[1] = 0};
