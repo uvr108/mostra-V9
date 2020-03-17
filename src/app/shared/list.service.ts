@@ -2,26 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from './../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ListService {
-
-  baseurl = 'http://10.54.223.18/api2db/?has-preferred=true&include-descriptions=true';
-
-  // baseurl = 'http://localhost/api2db/?order-by=time-desc';
-
-  // baseurl = 'http://10.54.223.18/api2db/';
   
-  // baseurl = 'http://10.54.223.18/api2db/?has-preferred=true&include-descriptions=true'
-  // + '&start-time=2020-02-01T00:00:00Z&end-time=2020-04-20T15:00:00Z&order-by=time-desc';
-  
-  // baseurl = 'http://127.0.0.1/api2db/5321/email_info';
+  my_server_ip = environment.my_server_ip;
 
-  // 2020-02-01T00:00:00Z
-  // 2020-04-20T15:00:00Z
- 
+  baseurl = `http://${this.my_server_ip}/api2db/?has-preferred=true&include-descriptions=true`;
+
   getList(ini: string, fin: string): Observable<Array<{}>> {
       
       return this.http.get<any>(this.baseurl + '&start-time=' + ini + '&end-time=' + fin + '&order-by=time-desc')
@@ -33,8 +24,7 @@ export class ListService {
 
   
   GetIssue(value): Observable<[{}]> {
-    // console.log('http://10.54.223.18/api2db/' + value + '/email_info');
-    return this.http.get<any>('http://10.54.223.18/api2db/' + value + '/email_info')
+    return this.http.get<any>(`http://${this.my_server_ip}/api2db/${value}/email_info`)
     .pipe(
       retry(1),
       catchError(this.errorHandl)
