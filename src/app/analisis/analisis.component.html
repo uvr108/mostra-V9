@@ -60,7 +60,7 @@
         <thead  class="thead-dark">
           <tr><th>id</th><th>author</th><th>creation_time</th><th>mag</th><th>type</th><th>station_count</th>
             <th>Status</th><th>latitud</th><th>longitud</th><th>depth</th><th>user</th><th>sensible</th><th>retardo</th>
-            <th>version</th></tr>
+            <th>version</th><!--th>stat</th--></tr>
           <tr *ngFor="let o of out  |paginate: { itemsPerPage: 15, currentPage: p } ">
             <td>{{ o['event_id']}}</td>
             <td>{{ o['magnitude']['creation_info']['author']}}</td>
