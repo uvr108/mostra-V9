@@ -50,7 +50,7 @@ export class AnalisisComponent implements OnInit {
 
     const epochNow = (new Date).getTime();
     this.filedir = String(epochNow);
-    console.log(this.filedir);
+    // console.log(this.filedir);
         
     const blob = new Blob([this.formatea()], { type: 'application/octet-stream' });
 
@@ -150,7 +150,7 @@ export class AnalisisComponent implements OnInit {
                   d['sensible'] = ((sensible.findIndex(esIgual) === -1) ? false: true);
 
                   this.sta = [1,1,1];
-
+                  // console.log(pversion, d['version_solution']);
                   if (pversion === true && +d['version_solution'] === 0) { 
 
                       this.sta[0] = 0;
@@ -177,7 +177,7 @@ export class AnalisisComponent implements OnInit {
                   
                 })})
            });
-           
+                //   console.log(sensible); 
          }
       );
   }
