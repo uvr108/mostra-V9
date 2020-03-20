@@ -26,7 +26,8 @@ export class AnalisisComponent implements OnInit {
   // itemsPerPage: any; 
   // currentPage: any;
 
-  my_server_ip = environment.my_server_ip; 
+  // my_server_ip = environment.my_server_ip; 
+  my_server_ip = '10.54.217.85';
 
   periodForm = this.fb.group({
 
