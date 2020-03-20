@@ -9,7 +9,8 @@ import { environment } from './../../environments/environment';
 })
 export class ListService {
   
-  my_server_ip = environment.my_server_ip;
+  // my_server_ip = environment.my_server_ip;
+  my_server_ip = '10.54.217.85'; 
 
   baseurl = `http://${this.my_server_ip}/api2db/?has-preferred=true&include-descriptions=true`;
 
